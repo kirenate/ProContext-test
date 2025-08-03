@@ -23,6 +23,7 @@ type Valute struct {
 	Name      string `xml:"Name"`
 	Value     string `xml:"Value"`
 	VunitRate string `xml:"VunitRate"`
+	Date      string
 }
 
 func NewRepository(db *gorm.DB) *Repository {
