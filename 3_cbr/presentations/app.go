@@ -51,8 +51,8 @@ func (r *Presentation) BuildApp() error {
 
 	}
 	avg = avg / float64(len(*all))
-	fmt.Println(maxim)
-	fmt.Println(minim)
+	fmt.Println(maxim.Value, maxim.Name, maxim.Date)
+	fmt.Println(minim.Value, minim.Name, minim.Date)
 	fmt.Println(avg)
 
 	return nil

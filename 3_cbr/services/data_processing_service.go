@@ -50,6 +50,7 @@ func (r *Service) ProcessData() error {
 		}
 
 		for _, v := range valcurs.Valutes {
+			v.Date = valcurs.Date
 			err = r.repository.SaveValute(&v)
 			if err != nil {
 				return errors.Wrap(err, "failed to save valute")
