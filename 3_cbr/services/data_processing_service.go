@@ -3,10 +3,8 @@ package services
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
-	"io"
+	"golang.org/x/net/html/charset"
 	"main.go/repositories"
 	"net/http"
 	"time"
@@ -42,21 +40,29 @@ func (r *Service) ProcessData() error {
 			return errors.Wrap(err, "failed to send request")
 		}
 
-		var valcurs *repositories.ValCurs
-		err = xml.Unmarshal(resp, &valcurs)
+		var valcurs repositories.ValCurs
+
+		decoder := xml.NewDecoder(resp.Body)
+		decoder.CharsetReader = charset.NewReaderLabel
+		err = decoder.Decode(&valcurs)
 		if err != nil {
 			return errors.Wrap(err, "failed to unmarshal response")
 		}
 
-		fmt.Println(valcurs)
-		log.Info().Interface("v", valcurs).Msg("")
+		for _, v := range valcurs.Valutes {
+			err = r.repository.SaveValute(&v)
+			if err != nil {
+				return errors.Wrap(err, "failed to save valute")
+			}
+		}
 
 		day += 86400
 	}
+
 	return nil
 }
 
-func sendReq(rawUrl string) ([]byte, error) {
+func sendReq(rawUrl string) (*http.Response, error) {
 
 	client := http.DefaultClient
 
@@ -75,15 +81,5 @@ func sendReq(rawUrl string) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to send GET request")
 	}
 
-	readBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read request body")
-	}
-
-	err = resp.Body.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close request body")
-	}
-
-	return readBody, nil
+	return resp, nil
 }

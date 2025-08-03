@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -33,6 +33,6 @@ func main() {
 
 	err = presentation.BuildApp()
 	if err != nil {
-		log.Error().Stack().Err(err)
+		fmt.Println(err)
 	}
 }
