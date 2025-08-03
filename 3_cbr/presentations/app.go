@@ -1,12 +1,9 @@
 package presentations
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"main.go/repositories"
 	"main.go/services"
-	"strconv"
-	"strings"
 )
 
 type Presentation struct {
@@ -23,37 +20,9 @@ func (r *Presentation) BuildApp() error {
 	if err != nil {
 		return errors.Wrap(err, "failed to process data")
 	}
-
-	maxim, err := r.repository.GetMaxValute()
+	err = r.service.GetNeededInfo()
 	if err != nil {
-		return errors.Wrap(err, "failed to get max valute")
+		return errors.Wrap(err, "failed to get needed info")
 	}
-
-	minim, err := r.repository.GetMinValute()
-	if err != nil {
-		return errors.Wrap(err, "failed to get min valute")
-	}
-	all, err := r.repository.GetAllRecords()
-	if err != nil {
-		return errors.Wrap(err, "failed to get all records")
-	}
-	avg := 0.0
-	for _, v := range *all {
-
-		tmp := strings.Join(strings.Split(v.Value, ","), ".")
-
-		value, err := strconv.ParseFloat(tmp, 64)
-		if err != nil {
-			return errors.Wrap(err, "failed to parse float")
-		}
-
-		avg += value
-
-	}
-	avg = avg / float64(len(*all))
-	fmt.Println(maxim.Value, maxim.Name, maxim.Date)
-	fmt.Println(minim.Value, minim.Name, minim.Date)
-	fmt.Println(avg)
-
 	return nil
 }

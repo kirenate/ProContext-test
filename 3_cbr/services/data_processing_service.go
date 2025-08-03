@@ -3,10 +3,13 @@ package services
 import (
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html/charset"
 	"main.go/repositories"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -83,4 +86,39 @@ func sendReq(rawUrl string) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func (r *Service) GetNeededInfo() error {
+
+	maxim, err := r.repository.GetMaxValute()
+	if err != nil {
+		return errors.Wrap(err, "failed to get max valute")
+	}
+
+	minim, err := r.repository.GetMinValute()
+	if err != nil {
+		return errors.Wrap(err, "failed to get min valute")
+	}
+	all, err := r.repository.GetAllRecords()
+	if err != nil {
+		return errors.Wrap(err, "failed to get all records")
+	}
+	avg := 0.0
+	for _, v := range *all {
+
+		tmp := strings.Join(strings.Split(v.Value, ","), ".")
+
+		value, err := strconv.ParseFloat(tmp, 64)
+		if err != nil {
+			return errors.Wrap(err, "failed to parse float")
+		}
+
+		avg += value
+
+	}
+	avg = avg / float64(len(*all))
+	fmt.Println(maxim.Value, maxim.Name, maxim.Date)
+	fmt.Println(minim.Value, minim.Name, minim.Date)
+	fmt.Println(avg)
+	return nil
 }
